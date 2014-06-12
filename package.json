@@ -2,9 +2,14 @@
   "name": "generator-caribou",
   "version": "0.1.0",
   "description": "Generator for front end apps using Gulp, Karma, Mocha & Other Goodies",
+  "homepage": "https://github.com/wbyoung/caribou",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/wbyoung/caribou.git"
   },
   "keywords": [
     "yeoman-generator"
