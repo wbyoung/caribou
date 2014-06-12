@@ -5,7 +5,7 @@
 Yeoman generator for projects that want a simple path to set up the following
 tools for front-end development:
 
- - [`gulp`][gulp] task runner
+ - [gulp][gulp] task runner
  - [Sass][sass] for stylesheets
  - [Browserify][browserify] for combining JavaScript
  - [JSHint][jshint] for linting JavaScript
