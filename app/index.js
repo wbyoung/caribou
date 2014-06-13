@@ -14,7 +14,7 @@ module.exports = yeoman.generators.Base.extend({
       type    : "input",
       name    : "name",
       message : "Your project name",
-      default : this.appname // Default to current folder name
+      default : this.appname.replace(/[\W]+/g, '-')
     }, function (answers) {
       this.appname = answers.name;
       done();
