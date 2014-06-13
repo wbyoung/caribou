@@ -43,6 +43,10 @@ module.exports = yeoman.generators.Base.extend({
     this.copy('app/index.html');
   },
 
+  staticAssets: function() {
+    this.copy('app/media/caribou.png');
+  },
+
   scripts: function() {
     this.copy('app/scripts/application.js');
     this.copy('app/scripts/vendor.js');
