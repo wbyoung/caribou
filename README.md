@@ -15,6 +15,7 @@ tools for front-end development:
  - Testing with [Karma][karma], [Mocha][mocha], [Chai][chai], and
    [Sinon.JS][sinon]
 
+![Caribou][caribou-image]
 
 ## Install
 
@@ -49,6 +50,7 @@ This project is distributed under the MIT license.
 [david-image]: https://david-dm.org/wbyoung/caribou.png?theme=shields.io
 [david-url]: https://david-dm.org/wbyoung/caribou
 
+[caribou-image]: ./templates/app/media/caribou.png
 [gulp]: http://gulpjs.com
 [sass]: http://sass-lang.com
 [browserify]: http://browserify.org
