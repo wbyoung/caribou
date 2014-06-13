@@ -1,4 +1,6 @@
-/* global Application, describe, it, expect */ 'use strict';
+/* global Application, describe, it, expect */
+
+'use strict';
 
 describe('app', function() {
   describe('posts controller', function() {

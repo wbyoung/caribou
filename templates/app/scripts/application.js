@@ -1,4 +1,4 @@
-/* global $ */ 'use strict';
+'use strict';
 
 var Application = window.Application = (function() {
   return {
