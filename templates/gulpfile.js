@@ -2,6 +2,8 @@
 
 var gulp = require('gulp');
 var path = require('path');
+var util = require('util');
+var colors = require('chalk');
 var es = require('event-stream');
 var $ = require('gulp-load-plugins')();
 var _ = require('lodash');
@@ -80,6 +82,14 @@ var browserify = function() {
     var chunks = [];
     var bundle = browserifier.bundle();
     bundle.on('data', chunks.push.bind(chunks));
+    bundle.on('error', function(e) {
+      console.log(util.format('[%s] %s: %s',
+        colors.green('gulp'),
+        colors.red('browserify'),
+        e.message));
+      this.queue(null);
+      this.resume();
+    }.bind(this));
     bundle.on('end', function() {
       file.contents = Buffer.concat(chunks);
       this.queue(file);
