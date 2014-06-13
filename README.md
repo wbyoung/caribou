@@ -18,7 +18,7 @@ tools for front-end development:
 
 ## Install
 
-``` bash
+```
 npm install -g yeoman generator-caribou
 mkdir my-app
 cd my-app
