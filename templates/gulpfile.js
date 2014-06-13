@@ -4,6 +4,7 @@ var gulp = require('gulp');
 var path = require('path');
 var util = require('util');
 var colors = require('chalk');
+var gutil = require('gulp-util');
 var es = require('event-stream');
 var $ = require('gulp-load-plugins')();
 var _ = require('lodash');
@@ -83,8 +84,7 @@ var browserify = function() {
     var bundle = browserifier.bundle();
     bundle.on('data', chunks.push.bind(chunks));
     bundle.on('error', function(e) {
-      console.log(util.format('[%s] %s: %s',
-        colors.green('gulp'),
+      gutil.log(util.format('%s: %s',
         colors.red('browserify'),
         e.message));
       this.queue(null);

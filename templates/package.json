@@ -24,6 +24,7 @@
     "gulp-preprocess": "^1.0.1",
     "gulp-sass": "^0.7.1",
     "gulp-uglify": "^0.2.1",
+    "gulp-util": "^2.2.17",
     "karma": "^0.10.9",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^0.1.2",
