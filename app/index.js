@@ -31,6 +31,10 @@ module.exports = yeoman.generators.Base.extend({
     this.copy('bowerrc', '.bowerrc');
   },
 
+  jshint: function() {
+    this.copy('jshintrc', '.jshintrc');
+  },
+
   gulp: function() {
     this.copy('gulpfile.js');
   },
