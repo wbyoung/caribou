@@ -5,6 +5,10 @@
 Yeoman generator for projects that want a simple path to set up the following
 tools for front-end development:
 
+<p style="float: right">
+![Caribou][caribou-image]
+</p>
+
  - [gulp][gulp] task runner
  - [Sass][sass] for stylesheets
  - [Browserify][browserify] for combining JavaScript
@@ -14,8 +18,6 @@ tools for front-end development:
  - [Bower][bower] with [jQuery][jquery] and [Bootstrap][bootstrap]
  - Testing with [Karma][karma], [Mocha][mocha], [Chai][chai], and
    [Sinon.JS][sinon]
-
-![Caribou][caribou-image]
 
 ## Install
 
@@ -50,7 +52,7 @@ This project is distributed under the MIT license.
 [david-image]: https://david-dm.org/wbyoung/caribou.png?theme=shields.io
 [david-url]: https://david-dm.org/wbyoung/caribou
 
-[caribou-image]: ./templates/app/media/caribou.png
+[caribou-image]: ./templates/app/media/caribou-small.png
 [gulp]: http://gulpjs.com
 [sass]: http://sass-lang.com
 [browserify]: http://browserify.org
