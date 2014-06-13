@@ -112,6 +112,7 @@ tasks['.serve'] = function(options) {
   var connect = require('connect');
   var http = require('http');
   var app = connect()
+    .use(require('morgan')('dev'))
     .use(require('connect-livereload')({ port: LIVERELOAD_PORT }))
     .use(require('serve-static')(path.resolve(paths('dest.app.html', opts))));
 
