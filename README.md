@@ -5,6 +5,8 @@
 Yeoman generator for projects that want a simple path to set up the following
 tools for front-end development:
 
+<img align="right" src="templates/app/media/caribou-small.png" alt="Caribou">
+
  - [gulp][gulp] task runner
  - [Sass][sass] for stylesheets
  - [Browserify][browserify] for combining JavaScript
@@ -23,9 +25,6 @@ mkdir my-app
 cd my-app
 yo caribou
 ```
-
-![Caribou][caribou-image]
-
 
 ## Usage
 
