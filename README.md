@@ -1,6 +1,6 @@
 # Caribou Generator
 
-[![NPM version][npm-image]][npm-url] [![Dependencies][david-image]][david-url]
+[![NPM version][npm-image]][npm-url] [![Dependencies][david-image]][david-url] [![devDependencies][david-dev-image]][david-dev-url]
 
 Yeoman generator for projects that want a simple path to set up the following
 tools for front-end development:
@@ -49,6 +49,8 @@ This project is distributed under the MIT license.
 [npm-image]: https://badge.fury.io/js/generator-caribou.png
 [david-image]: https://david-dm.org/wbyoung/caribou.png?theme=shields.io
 [david-url]: https://david-dm.org/wbyoung/caribou
+[david-dev-image]: https://david-dm.org/wbyoung/caribou/dev-status.png?theme=shields.io
+[david-dev-url]: https://david-dm.org/wbyoung/caribou#info=devDependencies
 
 [caribou-image]: ./templates/app/media/caribou-small.png
 [gulp]: http://gulpjs.com
