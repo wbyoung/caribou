@@ -55,7 +55,7 @@ module.exports = yeoman.generators.Base.extend({
   },
 
   gulp: function() {
-    this.copy('gulpfile.js');
+    this.template('gulpfile.js');
   },
 
   html: function() {
@@ -68,21 +68,35 @@ module.exports = yeoman.generators.Base.extend({
 
   scripts: function() {
     this.copy('app/scripts/application.js');
-    this.copy('app/scripts/vendor.js');
-    this.copy('app/scripts/controllers/posts.js');
-    this.mkdir('app/scripts/controllers');
+    this.template('app/scripts/vendor.json');
   },
 
   styles: function() {
     this.copy('app/styles/application.scss');
     this.copy('app/styles/vendor.scss');
-    this.copy('app/styles/posts.scss');
+    this.copy('app/styles/caribou.scss');
+  },
+
+  server: function() {
+    if (this.components.server) {
+      this.copy('server/application.js');
+      this.copy('server/config/index.js');
+      this.copy('server/config/env/base.js');
+      this.copy('server/config/env/development.js');
+      this.copy('server/config/env/production.js');
+      this.copy('server/config/env/staging.js');
+    }
   },
 
   tests: function() {
     this.copy('karma.conf.js');
-    this.copy('test/app/test.js');
-    this.copy('test/app_helper.js');
+    this.copy('test/fixtures/example.json');
+    this.template('test/app/test.js');
+    this.template('test/app_helper.js');
+    if (this.components.server) {
+      this.copy('test/server/test.js');
+      this.copy('test/server_helper.js');
+    }
   },
 
   install: function() {

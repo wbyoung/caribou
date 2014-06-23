@@ -4,7 +4,8 @@ var gulp = require('gulp');
 var path = require('path');
 var util = require('util');
 var colors = require('chalk');
-var gutil = require('gulp-util');
+var gutil = require('gulp-util');<% if (components.server) { %>
+var cp = require('child_process');<% } %>
 var es = require('event-stream');
 var $ = require('gulp-load-plugins')();
 var _ = require('lodash');
@@ -28,15 +29,25 @@ var paths = (function() {
     ],
     'src.app.scripts': ['app/scripts/**/*.js'],
     'src.app.scripts.entry': ['app/scripts/application.js'],
-    'src.app.scripts.vendor': ['app/scripts/vendor.js'],
+    'src.app.scripts.vendor': require('./app/scripts/vendor.json').include,<% if (components.ember) { %>
+    'src.app.templates': ['app/templates/**/*.{hbs,em}'],<% } %>
     'src.app.styles': ['app/styles/**/*.scss'],
     'src.app.styles.entry': ['app/styles/application.scss'],
     'src.app.styles.vendor': ['app/styles/vendor.scss'],
-    'src.app.tests': ['test/app_helper.js', 'test/app/**/*.js'],
-    'dest.root': '<%= dist %>',
-    'dest.app.static': '<%= dist %>/public',
-    'dest.app.scripts': '<%= dist %>/public/scripts',
-    'dest.app.styles': '<%= dist %>/public/styles'
+    'src.app.tests': ['test/app/**/*.js'],
+    'src.app.tests.fixtures': ['test/fixtures/**/*.json'],
+    'src.app.tests.helpers': [<% if (components.ember) { %>
+      'app/bower_components/ember-mocha-adapter/adapter.js',<% } %>
+      'test/app_helper.js'
+    ],<% if (components.server) { %>
+    'src.server.scripts': ['server/**/*.js'],
+    'src.server.scripts.entry': ['./server/application.js'],
+    'src.server.tests': ['test/server_helper.js', 'test/server/**/*.js'],
+    'src.server.tests.fixtures': ['test/fixtures/**/*.json'],<% } %>
+    'dest.root': '<%%= dist %>',
+    'dest.app.static': '<%%= dist %>/public',
+    'dest.app.scripts': '<%%= dist %>/public/scripts',
+    'dest.app.styles': '<%%= dist %>/public/styles'
   };
 
   return function(name, options) {
@@ -44,7 +55,8 @@ var paths = (function() {
     var env = opts.env || 'development';
     var distribution = (env === 'distribution');
     var data = {
-      'dist': (distribution ? 'dist' : 'tmp'),
+      'dist': (distribution ? 'dist' : 'tmp')<% if (components.ember) { %>,
+      'ember_suffix': (distribution ? '.prod' : '')<% } %>
     };
     var result = table[name];
     if (typeof result === 'string') { result = _.template(result, data); }
@@ -83,27 +95,63 @@ var environment = (function() {
  */
 
 var browserify = function() {
+  var create = require('browserify');
   return es.through(function(file) {
-    var browserifier = require('browserify')(file.path);
-    var chunks = [];
-    var bundle = browserifier.bundle();
-    bundle.on('data', chunks.push.bind(chunks));
-    bundle.on('error', function(e) {
-      gutil.log(util.format('%s: %s',
-        colors.red('browserify'),
-        e.message));
+    create(file.path).bundle(function(err, contents) {
+      if (err) {
+        gutil.log(util.format('%s: %s',
+          colors.red('browserify'),
+          err.message));
+      }
+      else {
+        file.contents = new Buffer(contents);
+        this.queue(file);
+      }
       this.queue(null);
-      this.resume();
     }.bind(this));
-    bundle.on('end', function() {
-      file.contents = Buffer.concat(chunks);
-      this.queue(file);
-      this.resume();
-    }.bind(this));
-    this.pause();
   });
 };
 
+
+/*
+ * Server helpers
+ */
+var server = {};
+
+server.start = function(app, cb) {
+  app
+    .use(require('connect-livereload')({ port: LIVERELOAD_PORT }))
+    .listen(SERVER_PORT, cb);
+};
+<% if (components.server) { %>
+server.fork = (function() {
+  var running;
+  var next;
+  var run = function(app, env, cb) {
+    running = cp.fork(__filename, [app], { env: env });
+    running.on('close', function() { if (next) { next(); } });
+    running.on('message', cb || function() {});
+    next = undefined;
+  };
+
+  return function() {
+    next = run.apply.bind(run, this, arguments);
+    if (running) { running.send('shutdown'); }
+    else { next(); }
+  };
+})();
+
+server.child = function(args) {
+  var modulePath = args[0];
+  var app = require(modulePath);
+  server.start(app, function() {
+    process.send({ state: 'running' });
+    process.on('message', function() {
+      process.exit(0);
+    });
+  });
+};
+<% } %>
 
 /*
  * Configurable Tasks
@@ -113,20 +161,25 @@ var tasks = {};
 
 tasks['.serve'] = function(options) {
   var opts = options || {};
+  var open = opts.restart ? undefined : function() {
+    require('open')('http://localhost:' + SERVER_PORT + '/');
+  };
+<% if (components.server) { %>
+  var env = opts.env || 'development';
+  var distribution = (env === 'distribution');
 
-  var connect = require('connect');
-  var http = require('http');
-  var app = connect()
+  var serverEntry = paths('src.server.scripts.entry', opts)[0];
+  var serverEnv = {
+    NODE_ENV: distribution ? 'production' : 'development'
+  };
+  server.fork(serverEntry, serverEnv, open);
+<% } else { %>
+  var assets = path.resolve(paths('dest.app.static', opts));
+  var app = require('connect')()
     .use(require('morgan')('dev'))
-    .use(require('connect-livereload')({ port: LIVERELOAD_PORT }))
-    .use(require('serve-static')(path.resolve(paths('dest.app.static', opts))));
-
-  http.createServer(app).listen(SERVER_PORT, function() {
-    setTimeout(function() {
-      require('open')('http://localhost:' + SERVER_PORT + '/');
-    }, 500);
-  });
-
+    .use(require('serve-static')(assets));
+  server.start(app, open);
+<% } %>
   lr.listen(LIVERELOAD_PORT);
 };
 
@@ -134,33 +187,77 @@ tasks['.watch'] = function(options) {
   var opts = options || {};
 
   if (opts.app) {
-    gulp.watch(paths('src.app.scripts', opts), ['lint', '.scripts:app:dev:update']);
+    gulp.watch(paths('src.app.scripts', opts), ['lint', '.scripts:app:dev:update']);<% if (components.ember) { %>
+    gulp.watch(paths('src.app.templates', opts), ['.scripts:app:dev:update-templates']);<% } %>
     gulp.watch(paths('src.app.styles', opts), ['.styles:app:dev:update']);
     gulp.watch(paths('src.app.static', opts), ['.static:app:dev']);
+    gulp.watch([].concat(
+      paths('src.project.scripts', opts),
+      paths('src.app.scripts', opts),
+      paths('src.app.tests', opts)), ['lint']);
+  }
+<% if (components.server) { %>
+  if (opts.server && !opts.testing) {
+    gulp.watch(paths('src.server.scripts', opts), ['lint', '.serve:dev:restart']);
+  }
+
+  if (opts.server && opts.testing) {
+    gulp.watch([].concat(
+      paths('src.server.scripts', opts),
+      paths('src.server.tests.fixtures', opts),
+      paths('src.server.tests', opts)), ['lint', '.test:server:dev:re-run']);
+  }
+<% } %>
+  if (opts.app<% if (components.server) { %> || opts.server<% } %> || opts.testing) {
+    gulp.watch(paths('src.project.scripts', opts), ['lint']);
   }
 };
 
 tasks['.scripts:app'] = function(options) {
   var opts = options || {};
+  var streams = [];
   var env = opts.env || 'development';
   var distribution = (env === 'distribution');
 
   if (opts.all) {
     opts.vendor = true;
+    opts.templates = true;
     opts.scripts = true;
   }
 
-  var src = [];
   if (opts.vendor) {
-    src = src.concat(paths('src.app.scripts.vendor', opts));
+    streams.push(gulp.src(paths('src.app.scripts.vendor', opts))
+      .pipe($.concat('vendor.js')));
   }
+<% if (components.ember) { %>
+  if (opts.templates) {
+    var hbsFilter = $.filter('**/*.hbs');
+    var emFilter = $.filter('**/*.em');
+    var moduleOptions = {
+      context: function(context) {
+        return { name: context.name.replace(/\./, '/') };
+      }
+    };
+    streams.push(gulp.src(paths('src.app.templates', opts))
+      .pipe($.plumber())
+      .pipe(emFilter)
+      .pipe($.emberEmblem())
+      .pipe($.defineModule('plain', moduleOptions))
+      .pipe(emFilter.restore())
+      .pipe(hbsFilter)
+      .pipe($.emberHandlebars())
+      .pipe($.defineModule('plain', moduleOptions))
+      .pipe(hbsFilter.restore())
+      .pipe($.concat('templates.js')));
+  }
+<% } %>
   if (opts.scripts) {
-    src = src.concat(paths('src.app.scripts.entry', opts));
+    streams.push(gulp.src(paths('src.app.scripts.entry', opts), { read: false })
+      .pipe($.plumber())
+      .pipe(browserify()));
   }
 
-  var stream = gulp.src(src)
-    .pipe($.plumber())
-    .pipe(browserify());
+  var stream = es.merge.apply(es, streams);
 
   if (distribution) {
     stream = stream
@@ -170,7 +267,7 @@ tasks['.scripts:app'] = function(options) {
 
   stream = stream
     .pipe(gulp.dest(paths('dest.app.scripts', opts)))
-    .pipe($.livereload(lr));
+    .pipe($.livereload(LIVERELOAD_PORT, { auto: false, silent: true }));
 
   return stream;
 };
@@ -227,18 +324,32 @@ tasks['.test:app'] = function(options) {
   var env = opts.env || 'development';
   var distribution = (env === 'distribution');
   var dir = paths('dest.app.scripts', opts);
-  var app = [
+  var vendor = [
     path.join(dir, 'vendor.js'),
+  ];
+  var app = [<% if (components.ember) { %>
+    path.join(dir, 'templates.js'),<% } %>
     path.join(dir, 'application.js')
   ];
-  var sources = [].concat(app, paths('src.app.tests', opts));
+  var sources = [].concat(vendor,
+    paths('src.app.tests.fixtures', opts),
+    paths('src.app.tests.helpers', opts), app,
+    paths('src.app.tests', opts));
   return gulp.src(sources)
     .pipe($.karma({
       configFile: 'karma.conf.js',
       action: (distribution ? 'run' : 'watch')
     }));
 };
-
+<% if (components.server) { %>
+tasks['.test:server'] = function(options) {
+  var opts = options || {};
+  gulp.src(paths('src.server.tests', opts))
+    .pipe($.plumber())
+    .pipe($.mocha());
+  return null;
+};
+<% } %>
 tasks['.clean'] = function(options) {
   var opts = options || {};
   return gulp.src(paths('dest.root', opts), { read: false })
@@ -277,34 +388,71 @@ gulp.task('.scripts:app:dev', function() {
 gulp.task('.scripts:app:dev:update', function() {
   return tasks['.scripts:app'](_.merge(environment('development'), { scripts: true }));
 });
-
+<% if (components.ember) { %>
+gulp.task('.scripts:app:dev:update-templates', function() {
+  return tasks['.scripts:app'](_.merge(environment('development'), { templates: true }));
+});
+<% } %>
 gulp.task('.scripts:app:dist', function() {
   return tasks['.scripts:app'](_.merge(environment('distribution'), { all: true }));
 });
 
-gulp.task('.build:app:dev', ['.static:app:dev', '.styles:app:dev', '.scripts:app:dev']);
-gulp.task('.build:app:dist', ['.static:app:dist', '.styles:app:dist', '.scripts:app:dist']);
+gulp.task('.build:app:dev', [
+  '.static:app:dev',
+  '.styles:app:dev',
+  '.scripts:app:dev'
+]);
+
+gulp.task('.build:app:dist', [
+  '.static:app:dist',
+  '.styles:app:dist',
+  '.scripts:app:dist'
+]);
 
 gulp.task('.watch:app:dev', function() {
   return tasks['.watch']({ app: true });
 });
-
-gulp.task('.watch:test', function() {
+<% if (components.server) { %>
+gulp.task('.watch:server:dev', function() {
+  return tasks['.watch']({ server: true });
+});
+<% } %>
+gulp.task('.watch:test:app', function() {
   return tasks['.watch']({ app: true, testing: true });
 });
-
-gulp.task('.test:app:dev', ['.build:app:dev', '.watch:test'], function() {
+<% if (components.server) { %>
+gulp.task('.watch:test:server', function() {
+  return tasks['.watch']({ server: true, testing: true });
+});
+<% } %>
+gulp.task('.test:app:dev', ['.build:app:dev', '.watch:test:app'], function() {
   return tasks['.test:app'](environment('development'));
 });
 
 gulp.task('.test:app:dist', ['.build:app:dist'], function() {
   return tasks['.test:app'](environment('distribution'));
 });
-
-gulp.task('.serve:dev', ['.build:app:dev', '.watch:app:dev'], function() {
-  return tasks['.serve'](environment('development'));
+<% if (components.server) { %>
+gulp.task('.test:server:dev', ['.watch:test:server'], function() {
+  return tasks['.test:server'](environment('development'));
 });
 
+gulp.task('.test:server:dev:re-run', function() {
+  return tasks['.test:server'](environment('development'));
+});
+
+gulp.task('.test:server:dist', [], function() {
+  return tasks['.test:server'](environment('distribution'));
+});
+<% } %>
+gulp.task('.serve:dev', ['.build:app:dev', '.watch:app:dev'<% if (components.server) { %>, '.watch:server:dev'<% } %>], function() {
+  return tasks['.serve'](environment('development'));
+});
+<% if (components.server) { %>
+gulp.task('.serve:dev:restart', function() {
+  return tasks['.serve'](_.merge(environment('development'), { restart: true }));
+});
+<% } %>
 gulp.task('.serve:dist', ['.build:app:dist'], function() {
   return tasks['.serve'](environment('distribution'));
 });
@@ -323,7 +471,7 @@ gulp.task('.clean:dist', function() {
  */
 
 gulp.task('default', ['.clean:dist'], function() {
-  gulp.start('lint', '.build:app:dist', '.test:app:dist');
+  gulp.start('lint', '.build:app:dist', '.test:app:dist'<% if (components.server) { %>, '.test:server:dist'<% } %>);
 });
 
 gulp.task('serve', ['.clean:dev'], function() {
@@ -335,9 +483,17 @@ gulp.task('serve:dist', ['.clean:dist'], function() {
 });
 
 gulp.task('test', ['.clean:dev'], function() {
-  gulp.start('lint', '.test:app:dev');
+  gulp.start('lint', '.test:app:dev'<% if (components.server) { %>, '.test:server:dev'<% } %>);
 });
 
+gulp.task('test:app', ['.clean:dev'], function() {
+  gulp.start('lint', '.test:app:dev');
+});
+<% if (components.server) { %>
+gulp.task('test:server', ['.clean:dev'], function() {
+  gulp.start('lint', '.test:server:dev');
+});
+<% } %>
 gulp.task('build', ['.clean:dist'], function() {
   gulp.start('lint', '.build:app:dist');
 });
@@ -346,7 +502,9 @@ gulp.task('lint', function() {
   var src = [].concat(
     paths('src.project.scripts'),
     paths('src.app.scripts'),
-    paths('src.app.tests'));
+    paths('src.app.tests')<% if (components.server) { %>,
+    paths('src.server.scripts'),
+    paths('src.server.tests')<% } %>);
   return gulp.src(src)
     .pipe($.cached('linting'))
     .pipe($.jshint())
@@ -355,3 +513,9 @@ gulp.task('lint', function() {
 
 gulp.task('clean', ['.clean:dev']);
 gulp.task('clean:dist', ['.clean:dist']);
+<% if (components.server) { %>
+// when executed as a forked module
+if (require.main === module && process.send) {
+  server.child(process.argv.slice(2));
+}
+<% } %>

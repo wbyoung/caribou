@@ -3,45 +3,58 @@
   "version": "0.1.0",
   "scripts": {},
   "license": "MIT",
+  "dependencies": {<% if (components.server) { %>
+    "body-parser": "^1.3.0",
+    "compression": "^1.0.7",
+    "express": "^4.4.0",
+    "lodash": "^2.4.1",
+    "method-override": "^2.0.2",
+    "morgan": "^1.1.1",
+    "static-favicon": "^2.0.0-alpha"<% } %>
+  },
   "devDependencies": {
-    "browserify": "^3.44.2",
+    "browserify": "^4.1.11",
     "chai": "^1.9.0",
-    "chalk": "^0.4.0",
-    "connect": "^2.14.5",
+    "chalk": "^0.4.0",<% if (!components.server) { %>
+    "connect": "^2.14.5",<% } %>
     "connect-livereload": "^0.4.0",
     "event-stream": "^3.1.5",
     "gulp": "^3.5.2",
-    "gulp-cached": "^0.0.2",
-    "gulp-clean": "^0.2.4",
-    "gulp-concat": "^2.1.7",
+    "gulp-cached": "^0.0.3",
+    "gulp-clean": "^0.3.0",
+    "gulp-concat": "^2.1.7",<% if (components.ember) { %>
+    "gulp-define-module": "^0.1.0",
+    "gulp-ember-emblem": "^0.1.1",
+    "gulp-ember-handlebars": "wbyoung/gulp-handlebars#ember-handlebars-abstract-module-definition",<% } %>
     "gulp-filter": "^0.4.1",
     "gulp-jshint": "^1.5.0",
-    "gulp-karma": "^0.0.2",
-    "gulp-livereload": "^1.3.1",
-    "gulp-load-plugins": "^0.3.0",
+    "gulp-karma": "^0.0.4",
+    "gulp-livereload": "^2.1.0",
+    "gulp-load-plugins": "^0.5.1",
     "gulp-minify-css": "^0.3.1",
     "gulp-mocha": "^0.4.1",
-    "gulp-plumber": "^0.5.6",
+    "gulp-plumber": "^0.6.3",
     "gulp-preprocess": "^1.0.1",
     "gulp-sass": "^0.7.1",
-    "gulp-uglify": "^0.2.1",
+    "gulp-uglify": "^0.3.0",
     "gulp-util": "^2.2.17",
-    "karma": "^0.10.9",
+    "karma": "^0.12.16",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^0.1.2",
     "karma-firefox-launcher": "^0.1.3",
+    "karma-html2js-preprocessor": "^0.1.0",
     "karma-mocha": "^0.1.1",
     "karma-phantomjs-launcher": "^0.1.2",
     "karma-safari-launcher": "^0.1.1",
     "karma-script-launcher": "^0.1.0",
-    "karma-sinon": "^1.0.2",
-    "lodash": "^2.4.1",
-    "mocha": "^1.17.1",
-    "morgan": "^1.1.1",
-    "open": "^0.0.4",
-    "serve-static": "^1.1.0",
-    "sinon": "^1.8.2",
+    "karma-sinon": "^1.0.2",<% if (!components.server) { %>
+    "lodash": "^2.4.1",<% } %>
+    "mocha": "^1.20.0",<% if (!components.server) { %>
+    "morgan": "^1.1.1",<% } %>
+    "open": "^0.0.5",<% if (!components.server) { %>
+    "serve-static": "^1.1.0",<% } %>
+    "sinon": "^1.10.1",
     "sinon-chai": "^2.5.0",
-    "tiny-lr": "^0.0.5"
+    "tiny-lr": "^0.0.7"
   }
 }

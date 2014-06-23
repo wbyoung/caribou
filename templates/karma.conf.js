@@ -7,6 +7,7 @@ module.exports = function(config) {
     files: [], // specified via gulp
     exclude: [],
     reporters: ['progress'],
+    preprocessors: { '**/*.json': ['html2js'] },
     port: 8080,
     colors: true,
     logLevel: config.LOG_INFO,

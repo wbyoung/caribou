@@ -1,0 +1,20 @@
+{
+  "include": [<% if (components.jquery) { %>
+    "app/bower_components/jquery/dist/jquery.js",<% } %><% if (components.ember) { %>
+    "app/bower_components/handlebars/handlebars.runtime.js",
+    "app/bower_components/ember/ember<%%= ember_suffix %>.js",
+    "app/bower_components/ember-data/ember-data<%%= ember_suffix %>.js",<% } %><% if (components.bootstrap) { %>
+    "app/bower_components/bootstrap-sass/js/affix.js",
+    "app/bower_components/bootstrap-sass/js/alert.js",
+    "app/bower_components/bootstrap-sass/js/dropdown.js",
+    "app/bower_components/bootstrap-sass/js/tooltip.js",
+    "app/bower_components/bootstrap-sass/js/modal.js",
+    "app/bower_components/bootstrap-sass/js/transition.js",
+    "app/bower_components/bootstrap-sass/js/button.js",
+    "app/bower_components/bootstrap-sass/js/popover.js",
+    "app/bower_components/bootstrap-sass/js/carousel.js",
+    "app/bower_components/bootstrap-sass/js/scrollspy.js",
+    "app/bower_components/bootstrap-sass/js/collapse.js",
+    "app/bower_components/bootstrap-sass/js/tab.js"<% } %>
+  ]
+}
