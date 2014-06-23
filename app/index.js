@@ -20,6 +20,26 @@ module.exports = yeoman.generators.Base.extend({
     }.bind(this));
   },
 
+  promptComponents: function() {
+    var done = this.async();
+    this.prompt({
+      type: 'checkbox',
+      name: 'components',
+      message: 'What tools do you want to use?',
+      choices: [
+        { name: 'jQuery', value: 'jquery', checked: true },
+        { name: 'Bootstrap', value: 'bootstrap', checked: true },
+        { name: 'Ember', value: 'ember' },
+        { name: 'Node.js Server', value: 'server' }
+      ]
+    }, function(answers) {
+      this.components = answers.components.reduce(function(h, v) {
+        h[v] = true; return h;
+      }, {});
+      done();
+    }.bind(this));
+  },
+
   git: function() {
     this.copy('gitignore', '.gitignore');
   },
