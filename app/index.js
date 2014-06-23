@@ -1,6 +1,5 @@
 var yeoman = require('yeoman-generator');
 var path = require('path');
-var prompt = yeoman.generators.Base.prototype.prompt;
 
 module.exports = yeoman.generators.Base.extend({
   constructor: function() {
@@ -8,9 +7,9 @@ module.exports = yeoman.generators.Base.extend({
     this.sourceRoot(path.join(__dirname, '../templates'));
   },
 
-  prompt: function () {
+  promptProjectName: function () {
     var done = this.async();
-    prompt.call(this, {
+    this.prompt({
       type    : "input",
       name    : "name",
       message : "Your project name",
