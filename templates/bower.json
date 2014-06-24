@@ -4,13 +4,13 @@
   "license": "MIT",
   "private": true,
   "dependencies": {<% if (components.jquery) { %>
-    "jquery": "~2.1.0",<% } %><% if (components.bootstrap) { %>
-    "bootstrap-sass": "~3.0.2",<% } %><% if (components.ember) { %>
+    "jquery": "~2.1.0"<% } %><% if (components.bootstrap || components.ember) { %>,<% } %><% if (components.bootstrap) { %>
+    "bootstrap-sass": "~3.0.2"<% } %><% if (components.ember) { %>,<% } %><% if (components.ember) { %>
     "ember": "^1.5.1",
     "handlebars": "^1.2.1",
-    "ember-data": "^1.0.0-beta.8",<% } %>
+    "ember-data": "^1.0.0-beta.8"<% } %>
   },
   "devDependencies": {<% if (components.ember) { %>
-    "ember-mocha-adapter": "teddyzeenny/ember-mocha-adapter#master",<% } %>
+    "ember-mocha-adapter": "teddyzeenny/ember-mocha-adapter#master"<% } %>
   }
 }
