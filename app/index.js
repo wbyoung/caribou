@@ -100,6 +100,7 @@ module.exports = yeoman.generators.Base.extend({
   },
 
   install: function() {
+    if (this.options['skip-install']) { return; }
     this.installDependencies();
   }
 });

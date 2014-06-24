@@ -1,6 +1,6 @@
 # Caribou Generator
 
-[![NPM version][npm-image]][npm-url] [![Dependencies][david-image]][david-url] [![devDependencies][david-dev-image]][david-dev-url]
+[![NPM version][npm-image]][npm-url] [![Build status][travis-image]][travis-url] [![Code Climate][codeclimate-image]][codeclimate-url] [![Coverage Status][coverage-image]][coverage-url] [![Dependencies][david-image]][david-url] [![devDependencies][david-dev-image]][david-dev-url]
 
 Yeoman generator for projects that want a simple path to set up the following
 tools for front-end development:
@@ -45,8 +45,14 @@ Caribou uses `gulp` as a task runner. The following tasks are available:
 This project is distributed under the MIT license.
 
 
+[travis-url]: http://travis-ci.org/wbyoung/caribou
+[travis-image]: https://secure.travis-ci.org/wbyoung/caribou.png?branch=master
 [npm-url]: https://npmjs.org/package/generator-caribou
 [npm-image]: https://badge.fury.io/js/generator-caribou.png
+[codeclimate-image]: https://codeclimate.com/github/wbyoung/caribou.png
+[codeclimate-url]: https://codeclimate.com/github/wbyoung/caribou
+[coverage-image]: https://coveralls.io/repos/wbyoung/caribou/badge.png
+[coverage-url]: https://coveralls.io/r/wbyoung/caribou
 [david-image]: https://david-dm.org/wbyoung/caribou.png?theme=shields.io
 [david-url]: https://david-dm.org/wbyoung/caribou
 [david-dev-image]: https://david-dm.org/wbyoung/caribou/dev-status.png?theme=shields.io

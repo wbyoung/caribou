@@ -5,7 +5,7 @@
   "homepage": "https://github.com/wbyoung/caribou",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report $(if [ \"$TRAVIS\" ]; then echo lcovonly; else echo html; fi) -- && if [ \"$TRAVIS\" ]; then cat ./coverage/lcov.info | ./node_modules/.bin/coveralls; fi"
   },
   "repository": {
     "type": "git",
@@ -18,5 +18,11 @@
   "license": "MIT",
   "dependencies": {
     "yeoman-generator": "^0.17.0"
+  },
+  "devDependencies": {
+    "chai": "^1.9.1",
+    "coveralls": "^2.10.1",
+    "istanbul": "^0.2.11",
+    "mocha": "^1.20.1"
   }
 }
