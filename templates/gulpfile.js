@@ -41,13 +41,16 @@ var paths = (function() {
       'test/app_helper.js'
     ],<% if (components.server) { %>
     'src.server.scripts': ['server/**/*.js'],
-    'src.server.scripts.entry': ['./server/application.js'],
+    'src.server.scripts.entry': './server/application.js',
+    'src.server.scripts.supporting': ['server/**/*', '!server/**/*.js'],
     'src.server.tests': ['test/server_helper.js', 'test/server/**/*.js'],
     'src.server.tests.fixtures': ['test/fixtures/**/*.json'],<% } %>
     'dest.root': '<%%= dist %>',
     'dest.app.static': '<%%= dist %>/public',
     'dest.app.scripts': '<%%= dist %>/public/scripts',
-    'dest.app.styles': '<%%= dist %>/public/styles'
+    'dest.app.styles': '<%%= dist %>/public/styles',<% if (components.server) { %>
+    'dest.server.scripts': '<%%= dist %>/server',
+    'dest.server.scripts.entry': './<%%= dist %>/server/application.js'<% } %>
   };
 
   return function(name, options) {
@@ -162,7 +165,9 @@ tasks['.serve'] = function(options) {
   var env = opts.env || 'development';
   var distribution = (env === 'distribution');
 
-  var serverEntry = paths('src.server.scripts.entry', opts)[0];
+  var serverEntry = distribution ?
+    paths('dest.server.scripts.entry', opts) :
+    paths('src.server.scripts.entry', opts);
   var serverEnv = {
     NODE_ENV: distribution ? 'production' : 'development'
   };
@@ -341,6 +346,22 @@ tasks['.test:app'] = function(options) {
     }));
 };
 <% if (components.server) { %>
+tasks['.scripts:server'] = function(options) {
+  var opts = options || {};
+  var env = opts.env || 'development';
+  var development = (env === 'development');
+  if (development) {
+    throw new Error('Server scripts need not be processed during development.');
+  }
+
+  return es.merge.apply(es, [
+    gulp.src(paths('src.server.scripts', opts))
+      .pipe(gulp.dest(paths('dest.server.scripts', opts))),
+    gulp.src(paths('src.server.scripts.supporting', opts))
+      .pipe(gulp.dest(paths('dest.server.scripts', opts)))
+  ]);
+};
+
 tasks['.test:server'] = function(options) {
   var opts = options || {};
   gulp.src(paths('src.server.tests', opts))
@@ -407,7 +428,13 @@ gulp.task('.build:app:dist', [
   '.styles:app:dist',
   '.scripts:app:dist'
 ]);
+<% if (components.server) { %>
+gulp.task('.scripts:server:dist', function() {
+  return tasks['.scripts:server'](_.merge(environment('distribution'), { all: true }));
+});
 
+gulp.task('.build:server:dist', ['.scripts:server:dist']);
+<% } %>
 gulp.task('.watch:app:dev', function() {
   return tasks['.watch']({ app: true });
 });
@@ -451,11 +478,11 @@ gulp.task('.serve:dev', ['.build:app:dev', '.watch:app:dev'<% if (components.ser
 gulp.task('.serve:dev:restart', function() {
   return tasks['.serve'](_.merge(environment('development'), { restart: true }));
 });
-<% } %>
-gulp.task('.serve:dist', ['.build:app:dist'], function() {
+
+gulp.task('.serve:dist', ['.build:app:dist', '.build:server:dist'], function() {
   return tasks['.serve'](environment('distribution'));
 });
-
+<% } %>
 gulp.task('.clean:dev', function() {
   return tasks['.clean'](environment('development'));
 });
@@ -470,7 +497,7 @@ gulp.task('.clean:dist', function() {
  */
 
 gulp.task('default', ['.clean:dist'], function() {
-  gulp.start('lint', '.build:app:dist', '.test:app:dist'<% if (components.server) { %>, '.test:server:dist'<% } %>);
+  gulp.start('lint', '.build:app:dist'<% if (components.server) { %>, '.build:server:dist'<% } %>, '.test:app:dist'<% if (components.server) { %>, '.test:server:dist'<% } %>);
 });
 
 gulp.task('serve', ['.clean:dev'], function() {
@@ -494,7 +521,7 @@ gulp.task('test:server', ['.clean:dev'], function() {
 });
 <% } %>
 gulp.task('build', ['.clean:dist'], function() {
-  gulp.start('lint', '.build:app:dist');
+  gulp.start('lint', '.build:app:dist'<% if (components.server) { %>, '.build:server:dist'<% } %>);
 });
 
 gulp.task('lint', function() {
