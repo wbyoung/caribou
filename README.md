@@ -9,13 +9,19 @@ tools for front-end development:
 
  - [gulp][gulp] task runner
  - [Sass][sass] for stylesheets
- - [Browserify][browserify] for combining JavaScript
  - [JSHint][jshint] for linting JavaScript
+ - [Browserify][browserify] for combining JavaScript
  - [UglifyJS][uglifyjs] for minifying JavaScript
- - [Connect][connect] server with [LiveReload][livereload]
- - [Bower][bower] with [jQuery][jquery] and [Bootstrap][bootstrap]
  - Testing with [Karma][karma], [Mocha][mocha], [Chai][chai], and
    [Sinon.JS][sinon]
+
+You can optionally set up:
+
+ - [jQuery][jquery]
+ - [Bootstrap][bootstrap]
+ - [Ember][ember]
+ - [Connect][connect] or [Express][express] server with
+   [LiveReload][livereload]
 
 ## Install
 
@@ -73,3 +79,5 @@ This project is distributed under the MIT license.
 [mocha]: http://visionmedia.github.io/mocha/
 [chai]: http://chaijs.com
 [sinon]: http://sinonjs.org
+[ember]: http://emberjs.com
+[express]: http://expressjs.com
