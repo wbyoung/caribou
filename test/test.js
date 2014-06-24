@@ -95,11 +95,24 @@ describe('caribou', function() {
       assert.noFile([].concat(serverFiles));
     });
 
-    it('does not include jquery');
+    it('does not include jquery', function() {
+      assert.noFileContent('bower.json', /jquery/);
+      assert.noFileContent('app/scripts/vendor.json', /jquery/);
+    });
 
-    it('does not include bootstrap');
+    it('does not include bootstrap', function() {
+      assert.noFileContent('bower.json', /bootstrap/);
+      assert.noFileContent('app/scripts/vendor.json', /bootstrap/);
+    });
 
-    it('does not include ember');
+    it('does not include ember', function() {
+      assert.noFileContent('bower.json', /ember/);
+      assert.noFileContent('app/scripts/vendor.json', /ember/);
+    });
+
+    it('does not include server', function() {
+      assert.noFileContent('gulpfile.js', /server/);
+    });
   });
 
   describe('ember-only', function() {
@@ -110,10 +123,19 @@ describe('caribou', function() {
       assert.noFile([].concat(serverFiles));
     });
 
-    it('does not include jquery');
+    it('does not include bootstrap', function() {
+      assert.noFileContent('bower.json', /bootstrap/);
+      assert.noFileContent('app/scripts/vendor.json', /bootstrap/);
+    });
 
-    it('does not include bootstrap');
+    it('includes jquery', function() {
+      assert.fileContent('bower.json', /jquery/);
+      assert.fileContent('app/scripts/vendor.json', /jquery/);
+    });
 
-    it('does not include ember');
+    it('includes ember', function() {
+      assert.fileContent('bower.json', /ember/);
+      assert.fileContent('app/scripts/vendor.json', /ember/);
+    });
   });
 });
