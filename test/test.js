@@ -1,8 +1,10 @@
 'use strict';
 
+var _ = require('lodash');
+var fs = require('fs');
 var path = require('path');
 var helpers = require('yeoman-generator').test;
-var assert = require('yeoman-generator').assert;
+var assert = _.extend({}, require('yeoman-generator').assert);
 
 var run = function(components, done) {
   helpers.run(path.join( __dirname, '../app'))
@@ -47,83 +49,71 @@ var serverFiles = [
   'test/server/test.js'
 ];
 
-describe('jquery-bootstrap-ember-server', function() {
-  beforeEach(function(done) { run(['jquery', 'bootstrap', 'ember', 'server'], done); });
+assert.fileMatches = function(file, fixture) {
+  assert.textEqual(
+    fs.readFileSync(file, 'utf8'),
+    fs.readFileSync(fixture, 'utf8'));
+};
 
-  it('creates expected files', function() {
-    assert.file([].concat(projectFiles, appFiles, serverFiles));
-    assert.noFile([]);
+describe('caribou', function() {
+  describe('full-stack', function() {
+    before(function(done) { run(['jquery', 'bootstrap', 'ember', 'server'], done); });
+
+    it('creates expected files', function() {
+      assert.file([].concat(projectFiles, appFiles, serverFiles));
+      assert.noFile([]);
+    });
+
+    it('creates expected gulpfile.js', function() {
+      assert.fileMatches('gulpfile.js', path.join(__dirname,
+        'expected/gulpfile.full-stack.js'));
+    });
+
+    it('includes jquery', function() {
+      assert.fileContent('bower.json', /jquery/);
+      assert.fileContent('app/scripts/vendor.json', /jquery/);
+    });
+
+    it('includes bootstrap', function() {
+      assert.fileContent('bower.json', /bootstrap/);
+      assert.fileContent('app/scripts/vendor.json', /bootstrap/);
+      assert.fileContent('app/styles/vendor.scss', /bootstrap/);
+    });
+
+    it('includes ember', function() {
+      assert.fileContent('bower.json', /ember/);
+      assert.fileContent('app/scripts/vendor.json', /ember/);
+      assert.fileContent('test/app_helper.js', /ember/);
+    });
   });
-});
 
-describe('jquery-bootstrap-ember', function() {
-  beforeEach(function(done) { run(['jquery', 'bootstrap', 'ember'], done); });
+  describe('minimal', function() {
+    before(function(done) { run([], done); });
 
-  it('creates expected files', function() {
-    assert.file([].concat(projectFiles, appFiles));
-    assert.noFile([].concat(serverFiles));
+    it('creates expected files', function() {
+      assert.file([].concat(projectFiles, appFiles));
+      assert.noFile([].concat(serverFiles));
+    });
+
+    it('does not include jquery');
+
+    it('does not include bootstrap');
+
+    it('does not include ember');
   });
-});
 
-describe('jquery-ember-server', function() {
-  beforeEach(function(done) { run(['jquery', 'ember', 'server'], done); });
+  describe('ember-only', function() {
+    before(function(done) { run(['jquery', 'ember'], done); });
 
-  it('creates expected files', function() {
-    assert.file([].concat(projectFiles, appFiles, serverFiles));
-    assert.noFile([]);
-  });
-});
+    it('creates expected files', function() {
+      assert.file([].concat(projectFiles, appFiles));
+      assert.noFile([].concat(serverFiles));
+    });
 
-describe('jquery-ember', function() {
-  beforeEach(function(done) { run(['jquery', 'ember'], done); });
+    it('does not include jquery');
 
-  it('creates expected files', function() {
-    assert.file([].concat(projectFiles, appFiles));
-    assert.noFile([].concat(serverFiles));
-  });
-});
+    it('does not include bootstrap');
 
-describe('jquery-bootstrap-server', function() {
-  beforeEach(function(done) { run(['jquery', 'bootstrap', 'server'], done); });
-
-  it('creates expected files', function() {
-    assert.file([].concat(projectFiles, appFiles, serverFiles));
-    assert.noFile([]);
-  });
-});
-
-describe('jquery-server', function() {
-  beforeEach(function(done) { run(['jquery', 'server'], done); });
-
-  it('creates expected files', function() {
-    assert.file([].concat(projectFiles, appFiles, serverFiles));
-    assert.noFile([]);
-  });
-});
-
-describe('jquery', function() {
-  beforeEach(function(done) { run(['jquery'], done); });
-
-  it('creates expected files', function() {
-    assert.file([].concat(projectFiles, appFiles));
-    assert.noFile([].concat(serverFiles));
-  });
-});
-
-describe('bootstrap', function() {
-  beforeEach(function(done) { run(['bootstrap'], done); });
-
-  it('creates expected files', function() {
-    assert.file([].concat(projectFiles, appFiles));
-    assert.noFile([].concat(serverFiles));
-  });
-});
-
-describe('bootstrap-server', function() {
-  beforeEach(function(done) { run(['bootstrap'], done); });
-
-  it('creates expected files', function() {
-    assert.file([].concat(projectFiles, appFiles));
-    assert.noFile([].concat(serverFiles));
+    it('does not include ember');
   });
 });

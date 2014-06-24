@@ -13,6 +13,8 @@ var app = express();
 var config = require('./config');
 
 if (config.env === 'development') {
+  var connectLivereload = require('connect-livereload');
+  app.use(connectLivereload({ port: process.env.LIVERELOAD_PORT || 35729 }))
   app.use(morgan('dev'));
   app.use(express.static(config.public));
   app.use(express.static(path.join(__dirname, '../app')));

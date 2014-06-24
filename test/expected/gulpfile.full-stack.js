@@ -4,8 +4,8 @@ var gulp = require('gulp');
 var path = require('path');
 var util = require('util');
 var colors = require('chalk');
-var gutil = require('gulp-util');<% if (components.server) { %>
-var cp = require('child_process');<% } %>
+var gutil = require('gulp-util');
+var cp = require('child_process');
 var es = require('event-stream');
 var $ = require('gulp-load-plugins')();
 var _ = require('lodash');
@@ -29,25 +29,25 @@ var paths = (function() {
     ],
     'src.app.scripts': ['app/scripts/**/*.js'],
     'src.app.scripts.entry': ['app/scripts/application.js'],
-    'src.app.scripts.vendor': require('./app/scripts/vendor.json').include,<% if (components.ember) { %>
-    'src.app.templates': ['app/templates/**/*.{hbs,em}'],<% } %>
+    'src.app.scripts.vendor': require('./app/scripts/vendor.json').include,
+    'src.app.templates': ['app/templates/**/*.{hbs,em}'],
     'src.app.styles': ['app/styles/**/*.scss'],
     'src.app.styles.entry': ['app/styles/application.scss'],
     'src.app.styles.vendor': ['app/styles/vendor.scss'],
     'src.app.tests': ['test/app/**/*.js'],
     'src.app.tests.fixtures': ['test/fixtures/**/*.json'],
-    'src.app.tests.helpers': [<% if (components.ember) { %>
-      'app/bower_components/ember-mocha-adapter/adapter.js',<% } %>
+    'src.app.tests.helpers': [
+      'app/bower_components/ember-mocha-adapter/adapter.js',
       'test/app_helper.js'
-    ],<% if (components.server) { %>
+    ],
     'src.server.scripts': ['server/**/*.js'],
     'src.server.scripts.entry': ['./server/application.js'],
     'src.server.tests': ['test/server_helper.js', 'test/server/**/*.js'],
-    'src.server.tests.fixtures': ['test/fixtures/**/*.json'],<% } %>
-    'dest.root': '<%%= dist %>',
-    'dest.app.static': '<%%= dist %>/public',
-    'dest.app.scripts': '<%%= dist %>/public/scripts',
-    'dest.app.styles': '<%%= dist %>/public/styles'
+    'src.server.tests.fixtures': ['test/fixtures/**/*.json'],
+    'dest.root': '<%= dist %>',
+    'dest.app.static': '<%= dist %>/public',
+    'dest.app.scripts': '<%= dist %>/public/scripts',
+    'dest.app.styles': '<%= dist %>/public/styles'
   };
 
   return function(name, options) {
@@ -55,8 +55,8 @@ var paths = (function() {
     var env = opts.env || 'development';
     var distribution = (env === 'distribution');
     var data = {
-      'dist': (distribution ? 'dist' : 'tmp')<% if (components.ember) { %>,
-      'ember_suffix': (distribution ? '.prod' : '')<% } %>
+      'dist': (distribution ? 'dist' : 'tmp'),
+      'ember_suffix': (distribution ? '.prod' : '')
     };
     var result = table[name];
     if (typeof result === 'string') { result = _.template(result, data); }
@@ -112,7 +112,7 @@ var browserify = function() {
   });
 };
 
-<% if (components.server) { %>
+
 /*
  * Server helpers
  */
@@ -145,7 +145,7 @@ server.child = function(args) {
     });
   });
 };
-<% } %>
+
 
 /*
  * Configurable Tasks
@@ -158,7 +158,7 @@ tasks['.serve'] = function(options) {
   var open = opts.restart ? undefined : function() {
     require('open')('http://localhost:' + SERVER_PORT + '/');
   };
-<% if (components.server) { %>
+
   var env = opts.env || 'development';
   var distribution = (env === 'distribution');
 
@@ -167,15 +167,7 @@ tasks['.serve'] = function(options) {
     NODE_ENV: distribution ? 'production' : 'development'
   };
   server.fork(serverEntry, serverEnv, open);
-<% } else { %>
-  var assets = path.resolve(paths('dest.app.static', opts));
-  var app = require('connect')()
-    .use(require('connect-livereload')({ port: LIVERELOAD_PORT }))
-    .use(require('morgan')('dev'))
-    .use(require('serve-static')(assets))
-    .use(require('serve-static')(path.join(__dirname, 'app')));
-  app.listen(SERVER_PORT, open);
-<% } %>
+
   lr.listen(LIVERELOAD_PORT);
 };
 
@@ -183,8 +175,8 @@ tasks['.watch'] = function(options) {
   var opts = options || {};
 
   if (opts.app) {
-    gulp.watch(paths('src.app.scripts', opts), ['lint', '.scripts:app:dev:update']);<% if (components.ember) { %>
-    gulp.watch(paths('src.app.templates', opts), ['.scripts:app:dev:update-templates']);<% } %>
+    gulp.watch(paths('src.app.scripts', opts), ['lint', '.scripts:app:dev:update']);
+    gulp.watch(paths('src.app.templates', opts), ['.scripts:app:dev:update-templates']);
     gulp.watch(paths('src.app.styles', opts), ['.styles:app:dev:update']);
     gulp.watch(paths('src.app.static', opts), ['.static:app:dev']);
     gulp.watch([].concat(
@@ -192,7 +184,7 @@ tasks['.watch'] = function(options) {
       paths('src.app.scripts', opts),
       paths('src.app.tests', opts)), ['lint']);
   }
-<% if (components.server) { %>
+
   if (opts.server && !opts.testing) {
     gulp.watch(paths('src.server.scripts', opts), ['lint', '.serve:dev:restart']);
   }
@@ -203,8 +195,8 @@ tasks['.watch'] = function(options) {
       paths('src.server.tests.fixtures', opts),
       paths('src.server.tests', opts)), ['lint', '.test:server:dev:re-run']);
   }
-<% } %>
-  if (opts.app<% if (components.server) { %> || opts.server<% } %> || opts.testing) {
+
+  if (opts.app || opts.server || opts.testing) {
     gulp.watch(paths('src.project.scripts', opts), ['lint']);
   }
 };
@@ -225,7 +217,7 @@ tasks['.scripts:app'] = function(options) {
     streams.push(gulp.src(paths('src.app.scripts.vendor', opts))
       .pipe($.concat('vendor.js')));
   }
-<% if (components.ember) { %>
+
   if (opts.templates) {
     var hbsFilter = $.filter('**/*.hbs');
     var emFilter = $.filter('**/*.em');
@@ -246,7 +238,7 @@ tasks['.scripts:app'] = function(options) {
       .pipe(hbsFilter.restore())
       .pipe($.concat('templates.js')));
   }
-<% } %>
+
   if (opts.scripts) {
     streams.push(gulp.src(paths('src.app.scripts.entry', opts), { read: false })
       .pipe($.plumber())
@@ -326,8 +318,8 @@ tasks['.test:app'] = function(options) {
   var vendor = [
     path.join(dir, 'vendor.js'),
   ];
-  var app = [<% if (components.ember) { %>
-    path.join(dir, 'templates.js'),<% } %>
+  var app = [
+    path.join(dir, 'templates.js'),
     path.join(dir, 'application.js')
   ];
   var sources = [].concat(vendor,
@@ -340,7 +332,7 @@ tasks['.test:app'] = function(options) {
       action: (distribution ? 'run' : 'watch')
     }));
 };
-<% if (components.server) { %>
+
 tasks['.test:server'] = function(options) {
   var opts = options || {};
   gulp.src(paths('src.server.tests', opts))
@@ -348,7 +340,7 @@ tasks['.test:server'] = function(options) {
     .pipe($.mocha());
   return null;
 };
-<% } %>
+
 tasks['.clean'] = function(options) {
   var opts = options || {};
   return gulp.src(paths('dest.root', opts), { read: false })
@@ -387,11 +379,11 @@ gulp.task('.scripts:app:dev', function() {
 gulp.task('.scripts:app:dev:update', function() {
   return tasks['.scripts:app'](_.merge(environment('development'), { scripts: true }));
 });
-<% if (components.ember) { %>
+
 gulp.task('.scripts:app:dev:update-templates', function() {
   return tasks['.scripts:app'](_.merge(environment('development'), { templates: true }));
 });
-<% } %>
+
 gulp.task('.scripts:app:dist', function() {
   return tasks['.scripts:app'](_.merge(environment('distribution'), { all: true }));
 });
@@ -411,19 +403,19 @@ gulp.task('.build:app:dist', [
 gulp.task('.watch:app:dev', function() {
   return tasks['.watch']({ app: true });
 });
-<% if (components.server) { %>
+
 gulp.task('.watch:server:dev', function() {
   return tasks['.watch']({ server: true });
 });
-<% } %>
+
 gulp.task('.watch:test:app', function() {
   return tasks['.watch']({ app: true, testing: true });
 });
-<% if (components.server) { %>
+
 gulp.task('.watch:test:server', function() {
   return tasks['.watch']({ server: true, testing: true });
 });
-<% } %>
+
 gulp.task('.test:app:dev', ['.build:app:dev', '.watch:test:app'], function() {
   return tasks['.test:app'](environment('development'));
 });
@@ -431,7 +423,7 @@ gulp.task('.test:app:dev', ['.build:app:dev', '.watch:test:app'], function() {
 gulp.task('.test:app:dist', ['.build:app:dist'], function() {
   return tasks['.test:app'](environment('distribution'));
 });
-<% if (components.server) { %>
+
 gulp.task('.test:server:dev', ['.watch:test:server'], function() {
   return tasks['.test:server'](environment('development'));
 });
@@ -443,15 +435,15 @@ gulp.task('.test:server:dev:re-run', function() {
 gulp.task('.test:server:dist', [], function() {
   return tasks['.test:server'](environment('distribution'));
 });
-<% } %>
-gulp.task('.serve:dev', ['.build:app:dev', '.watch:app:dev'<% if (components.server) { %>, '.watch:server:dev'<% } %>], function() {
+
+gulp.task('.serve:dev', ['.build:app:dev', '.watch:app:dev', '.watch:server:dev'], function() {
   return tasks['.serve'](environment('development'));
 });
-<% if (components.server) { %>
+
 gulp.task('.serve:dev:restart', function() {
   return tasks['.serve'](_.merge(environment('development'), { restart: true }));
 });
-<% } %>
+
 gulp.task('.serve:dist', ['.build:app:dist'], function() {
   return tasks['.serve'](environment('distribution'));
 });
@@ -470,7 +462,7 @@ gulp.task('.clean:dist', function() {
  */
 
 gulp.task('default', ['.clean:dist'], function() {
-  gulp.start('lint', '.build:app:dist', '.test:app:dist'<% if (components.server) { %>, '.test:server:dist'<% } %>);
+  gulp.start('lint', '.build:app:dist', '.test:app:dist', '.test:server:dist');
 });
 
 gulp.task('serve', ['.clean:dev'], function() {
@@ -482,17 +474,17 @@ gulp.task('serve:dist', ['.clean:dist'], function() {
 });
 
 gulp.task('test', ['.clean:dev'], function() {
-  gulp.start('lint', '.test:app:dev'<% if (components.server) { %>, '.test:server:dev'<% } %>);
+  gulp.start('lint', '.test:app:dev', '.test:server:dev');
 });
 
 gulp.task('test:app', ['.clean:dev'], function() {
   gulp.start('lint', '.test:app:dev');
 });
-<% if (components.server) { %>
+
 gulp.task('test:server', ['.clean:dev'], function() {
   gulp.start('lint', '.test:server:dev');
 });
-<% } %>
+
 gulp.task('build', ['.clean:dist'], function() {
   gulp.start('lint', '.build:app:dist');
 });
@@ -501,9 +493,9 @@ gulp.task('lint', function() {
   var src = [].concat(
     paths('src.project.scripts'),
     paths('src.app.scripts'),
-    paths('src.app.tests')<% if (components.server) { %>,
+    paths('src.app.tests'),
     paths('src.server.scripts'),
-    paths('src.server.tests')<% } %>);
+    paths('src.server.tests'));
   return gulp.src(src)
     .pipe($.cached('linting'))
     .pipe($.jshint())
@@ -512,9 +504,9 @@ gulp.task('lint', function() {
 
 gulp.task('clean', ['.clean:dev']);
 gulp.task('clean:dist', ['.clean:dist']);
-<% if (components.server) { %>
+
 // when executed as a forked module
 if (require.main === module && process.send) {
   server.child(process.argv.slice(2));
 }
-<% } %>
+
