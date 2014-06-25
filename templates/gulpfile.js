@@ -326,7 +326,6 @@ tasks['.static:app'] = function(options) {
 tasks['.test:app'] = function(options) {
   var opts = options || {};
   var env = opts.env || 'development';
-  var development = (env === 'development');
   var distribution = (env === 'distribution');
   if (distribution) {
     throw new Error('Tests can not (currently) be run for distribution.');
