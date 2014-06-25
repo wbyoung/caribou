@@ -6,7 +6,8 @@ var util = require('util');
 var colors = require('chalk');
 var gutil = require('gulp-util');
 var cp = require('child_process');
-var es = require('event-stream');
+var through = require('through2');
+var OrderedStreams = require('ordered-read-streams');
 var $ = require('gulp-load-plugins')();
 var _ = require('lodash');
 
@@ -99,21 +100,21 @@ var environment = (function() {
 
 var browserify = function() {
   var create = require('browserify');
-  return es.through(function(file) {
+  return through.obj(function(file, enc, callback) {
     create(file.path).bundle(function(err, contents) {
       if (err) {
         gutil.log(util.format('%s: %s',
           colors.red('browserify'),
           err.message));
+        this.push(null);
       }
       else {
         file.contents = new Buffer(contents);
-        this.queue(file);
+        this.push(file);
       }
-      this.queue(null);
-      this.resume();
-    }.bind(this.pause()));
-  }, function() {});
+      callback();
+    }.bind(this));
+  });
 };
 
 
@@ -251,21 +252,10 @@ tasks['.scripts:app'] = function(options) {
       .pipe(browserify()));
   }
 
-  var stream = es.merge.apply(es, streams);
+  var stream = new OrderedStreams(streams);
 
   if (distribution) {
-    var vendor, templates, app = [];
     stream = stream
-      .pipe(es.through(function(file) {
-        if (file.path.match(/vendor.js$/)) { vendor = file; }
-        else if (file.path.match(/templates.js$/)) { templates = file; }
-        else { app.push(file); }
-      }, function() {
-        this.queue(vendor);
-        this.queue(templates);
-        app.forEach(this.queue.bind(this));
-        this.queue(null);
-      }))
       .pipe($.concat('application.js', { newLine: ';' }))
       .pipe($.uglify());
   }
@@ -369,7 +359,7 @@ tasks['.scripts:server'] = function(options) {
     throw new Error('Server scripts need not be processed during development.');
   }
 
-  return es.merge.apply(es, [
+  return new OrderedStreams([
     gulp.src(paths('src.server.scripts', opts))
       .pipe(gulp.dest(paths('dest.server.scripts', opts))),
     gulp.src(paths('src.server.scripts.supporting', opts))
