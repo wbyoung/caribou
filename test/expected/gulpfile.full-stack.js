@@ -110,8 +110,8 @@ var browserify = function() {
         file.contents = new Buffer(contents);
         this.queue(file);
       }
-      this.queue(null);
-    }.bind(this));
+      this.resume();
+    }.bind(this.pause()));
   });
 };
 
@@ -247,6 +247,7 @@ tasks['.scripts:app'] = function(options) {
   if (opts.scripts) {
     streams.push(gulp.src(paths('src.app.scripts.entry', opts), { read: false })
       .pipe($.plumber())
+      .pipe(es.through()) // hack for floatdrop/gulp-plumber#17
       .pipe(browserify()));
   }
 
