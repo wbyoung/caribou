@@ -59,7 +59,7 @@ module.exports = yeoman.generators.Base.extend({
   },
 
   html: function() {
-    this.copy('app/index.html');
+    this.template('app/index.html');
     this.write('app/favicon.ico', '');
   },
 
@@ -70,6 +70,9 @@ module.exports = yeoman.generators.Base.extend({
   scripts: function() {
     this.copy('app/scripts/application.js');
     this.template('app/scripts/vendor.json');
+    if (this.components.ember) {
+      this.copy('app/templates/application.hbs');
+    }
   },
 
   styles: function() {
