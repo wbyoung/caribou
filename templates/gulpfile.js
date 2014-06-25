@@ -313,12 +313,18 @@ tasks['.static:app'] = function(options) {
   var env = opts.env || 'development';
   var context = { GULP_ENVIRONMENT: env };
   var distribution = (env === 'distribution');
-  var htmlFilter = $.filter(['**/*.html', '**/*.htm']);
+  var htmlFilter = $.filter(['**/*.{html,htm}']);
+  var imageFilter = $.filter(['**/*.{png,jpg,jpeg,gif,svg}']);
   var stream = gulp.src(paths('src.app.static', opts));
   if (distribution) {
-    stream = stream.pipe(htmlFilter)
+    stream = stream
+      .pipe(htmlFilter)
       .pipe($.preprocess({ context: context }))
+      .pipe($.htmlmin({ removeComments: true, collapseWhitespace: true }))
       .pipe(htmlFilter.restore())
+      .pipe(imageFilter)
+      .pipe($.imagemin({}))
+      .pipe(imageFilter.restore())
       .pipe(gulp.dest(paths('dest.app.static', opts)));
   }
   return stream.pipe($.livereload(lr));
