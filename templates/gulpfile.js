@@ -262,7 +262,18 @@ tasks['.scripts:app'] = function(options) {
   var stream = es.merge.apply(es, streams);
 
   if (distribution) {
+    var vendor, templates, app = [];
     stream = stream
+      .pipe(es.through(function(file) {
+        if (file.path.match(/vendor.js$/)) { vendor = file; }
+        else if (file.path.match(/templates.js$/)) { templates = file; }
+        else { app.push(file); }
+      }, function() {
+        this.queue(vendor);
+        this.queue(templates);
+        app.forEach(this.queue.bind(this));
+        this.queue(null);
+      }))
       .pipe($.concat('application.js', { newLine: ';' }))
       .pipe($.uglify());
   }
