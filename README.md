@@ -26,7 +26,7 @@ You can optionally set up:
 ## Install
 
 ```
-npm install -g yeoman generator-caribou
+npm install -g yo generator-caribou
 mkdir my-app
 cd my-app
 yo caribou
@@ -36,7 +36,7 @@ yo caribou
 
 Caribou uses `gulp` as a task runner. The following tasks are available:
 
- - `default` cleans, runs linter, builds, and tests for distribution
+ - `default` runs the build task
  - `serve` cleans, runs linter, builds, serves, and watches for development
  - `serve:dist` cleans, runs linter, builds, and serves for distribution
  - `test` cleans, runs linter, builds, tests, and watches for development
