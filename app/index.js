@@ -60,6 +60,7 @@ module.exports = yeoman.generators.Base.extend({
 
   html: function() {
     this.copy('app/index.html');
+    this.write('app/favicon.ico', '');
   },
 
   staticAssets: function() {
