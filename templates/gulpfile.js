@@ -326,7 +326,12 @@ tasks['.static:app'] = function(options) {
 tasks['.test:app'] = function(options) {
   var opts = options || {};
   var env = opts.env || 'development';
+  var development = (env === 'development');
   var distribution = (env === 'distribution');
+  if (distribution) {
+    throw new Error('Tests can not (currently) be run for distribution.');
+  }
+
   var dir = paths('dest.app.scripts', opts);
   var vendor = [
     path.join(dir, 'vendor.js'),
@@ -335,6 +340,7 @@ tasks['.test:app'] = function(options) {
     path.join(dir, 'templates.js'),<% } %>
     path.join(dir, 'application.js')
   ];
+
   var sources = [].concat(vendor,
     paths('src.app.tests.fixtures', opts),
     paths('src.app.tests.helpers', opts), app,
@@ -364,6 +370,11 @@ tasks['.scripts:server'] = function(options) {
 
 tasks['.test:server'] = function(options) {
   var opts = options || {};
+  var env = opts.env || 'development';
+  var distribution = (env === 'distribution');
+  if (distribution) {
+    throw new Error('Tests can not (currently) be run for distribution.');
+  }
   gulp.src(paths('src.server.tests', opts))
     .pipe($.plumber())
     .pipe($.mocha());
@@ -454,10 +465,6 @@ gulp.task('.watch:test:server', function() {
 gulp.task('.test:app:dev', ['.build:app:dev', '.watch:test:app'], function() {
   return tasks['.test:app'](environment('development'));
 });
-
-gulp.task('.test:app:dist', ['.build:app:dist'], function() {
-  return tasks['.test:app'](environment('distribution'));
-});
 <% if (components.server) { %>
 gulp.task('.test:server:dev', ['.watch:test:server'], function() {
   return tasks['.test:server'](environment('development'));
@@ -465,10 +472,6 @@ gulp.task('.test:server:dev', ['.watch:test:server'], function() {
 
 gulp.task('.test:server:dev:re-run', function() {
   return tasks['.test:server'](environment('development'));
-});
-
-gulp.task('.test:server:dist', [], function() {
-  return tasks['.test:server'](environment('distribution'));
 });
 <% } %>
 gulp.task('.serve:dev', ['.build:app:dev', '.watch:app:dev'<% if (components.server) { %>, '.watch:server:dev'<% } %>], function() {
@@ -496,9 +499,7 @@ gulp.task('.clean:dist', function() {
  * Public Tasks
  */
 
-gulp.task('default', ['.clean:dist'], function() {
-  gulp.start('lint', '.build:app:dist'<% if (components.server) { %>, '.build:server:dist'<% } %>, '.test:app:dist'<% if (components.server) { %>, '.test:server:dist'<% } %>);
-});
+gulp.task('default', ['build']);
 
 gulp.task('serve', ['.clean:dev'], function() {
   gulp.start('lint', '.serve:dev');
@@ -543,5 +544,4 @@ gulp.task('clean:dist', ['.clean:dist']);
 // when executed as a forked module
 if (require.main === module && process.send) {
   server.child(process.argv.slice(2));
-}
-<% } %>
+}<% } %>
