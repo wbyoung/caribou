@@ -1,6 +1,4 @@
-<% if (components.ember) { %>/* global Ember: true */
-
-<% } %>'use strict';
+'use strict';
 
 <% if (components.ember) { %>
 Ember.LOG_VERSION = false;

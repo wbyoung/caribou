@@ -51,7 +51,8 @@ module.exports = yeoman.generators.Base.extend({
   },
 
   jshint: function() {
-    this.copy('jshintrc', '.jshintrc');
+    this.template('jshintrc', '.jshintrc');
+    this.template('test/jshintrc', 'test/.jshintrc');
   },
 
   gulp: function() {

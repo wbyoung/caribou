@@ -1,7 +1,6 @@
 {
   "node": true,
   "browser": true,
-  "esnext": true,
   "bitwise": true,
   "camelcase": true,
   "curly": true,
@@ -19,7 +18,8 @@
   "trailing": true,
   "smarttabs": true,
   "globals": {
-    "jQuery": true,
-    "$": true
+    "<%= _.classify(appname) %>": true<% if (components.ember) { %>,
+    "Ember": true,
+    "DS": true<% } %>
   }
 }
