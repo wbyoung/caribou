@@ -77,7 +77,7 @@ module.exports = yeoman.generators.Base.extend({
 
   styles: function() {
     this.copy('app/styles/application.scss');
-    this.copy('app/styles/vendor.scss');
+    this.template('app/styles/vendor.scss');
     this.copy('app/styles/caribou.scss');
   },
 

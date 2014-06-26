@@ -103,6 +103,7 @@ describe('caribou', function() {
     it('does not include bootstrap', function() {
       assert.noFileContent('bower.json', /bootstrap/);
       assert.noFileContent('app/scripts/vendor.json', /bootstrap/);
+      assert.noFileContent('app/styles/vendor.scss', /bootstrap/);
     });
 
     it('does not include ember', function() {
