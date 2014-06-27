@@ -25,6 +25,7 @@ var paths = (function() {
     'src.app.static': [
       'app/**/*',
       '!app/scripts/**/*',
+      '!app/templates/**/*',
       '!app/styles/**/*',
       '!app/bower_components/**/*'
     ],

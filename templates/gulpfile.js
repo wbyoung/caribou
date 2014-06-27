@@ -24,7 +24,8 @@ var paths = (function() {
     'src.project.scripts': ['./*.js'],
     'src.app.static': [
       'app/**/*',
-      '!app/scripts/**/*',
+      '!app/scripts/**/*',<% if (components.ember) { %>
+      '!app/templates/**/*',<% } %>
       '!app/styles/**/*',
       '!app/bower_components/**/*'
     ],
