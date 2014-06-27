@@ -488,11 +488,11 @@ gulp.task('.serve:dev', ['.build:app:dev', '.watch:app:dev'<% if (components.ser
 gulp.task('.serve:dev:restart', function() {
   return tasks['.serve'](_.merge(environment('development'), { restart: true }));
 });
-
-gulp.task('.serve:dist', ['.build:app:dist', '.build:server:dist'], function() {
+<% } %>
+gulp.task('.serve:dist', ['.build:app:dist'<% if (components.server) { %>, '.build:server:dist'<% } %>], function() {
   return tasks['.serve'](environment('distribution'));
 });
-<% } %>
+
 gulp.task('.clean:dev', function() {
   return tasks['.clean'](environment('development'));
 });
