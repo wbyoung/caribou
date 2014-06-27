@@ -26,8 +26,10 @@ var paths = (function() {
       'app/**/*',
       '!app/scripts/**/*',
       '!app/templates/**/*',
+      '!app/templates',
       '!app/styles/**/*',
-      '!app/bower_components/**/*'
+      '!app/bower_components/**/*',
+      '!app/bower_components'
     ],
     'src.app.scripts': ['app/scripts/**/*.js'],
     'src.app.scripts.entry': ['app/scripts/application.js'],
