@@ -298,6 +298,7 @@ tasks['.styles:app'] = function(options) {
   }
 
   var stream = gulp.src(src)
+    .pipe($.plumber())
     .pipe($.sass());
 
   if (distribution) {
