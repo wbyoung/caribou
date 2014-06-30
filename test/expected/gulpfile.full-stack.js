@@ -165,7 +165,8 @@ var tasks = {};
 tasks['.serve'] = function(options) {
   var opts = options || {};
   var open = opts.restart ? undefined : function() {
-    require('open')('http://localhost:' + SERVER_PORT + '/');
+    require('open')('http://localhost:' + SERVER_PORT + '/',
+      process.env.GULP_OPEN_BROWSER);
   };
 
   var env = opts.env || 'development';
