@@ -10,7 +10,6 @@ var favicon = require('serve-favicon');
 var config = require('./config');
 
 var app = express();
-var config = require('./config');
 
 if (config.env === 'development') {
   var connectLivereload = require('connect-livereload');
