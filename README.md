@@ -40,6 +40,9 @@ Caribou uses `gulp` as a task runner. The following tasks are available:
  - `serve` cleans, runs linter, builds, serves, and watches for development
  - `serve:dist` cleans, runs linter, builds, and serves for distribution
  - `test` cleans, runs linter, builds, tests, and watches for development
+ - `test:coverage` cleans, runs linter, builds, tests, and generates code coverage
+ - `test:app` cleans, runs linter, builds, tests, and watches app for development
+ - `test:server` cleans, runs linter, builds, tests, and watches server for development
  - `build` cleans, runs linter and builds for distribution
  - `lint` cleans, runs linter
  - `clean` cleans for development
