@@ -48,6 +48,7 @@ module.exports = yeoman.generators.Base.extend({
     this.template('package.json');
     this.template('bower.json');
     this.copy('bowerrc', '.bowerrc');
+    this.copy('travis.yml', '.travis.yml');
   },
 
   jshint: function() {
