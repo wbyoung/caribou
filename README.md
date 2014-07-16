@@ -12,8 +12,8 @@ tools for front-end development:
  - [JSHint][jshint] for linting JavaScript
  - [Browserify][browserify] for combining JavaScript
  - [UglifyJS][uglifyjs] for minifying JavaScript
- - Testing with [Karma][karma], [Mocha][mocha], [Chai][chai], and
-   [Sinon.JS][sinon]
+ - Testing with [Karma][karma], [Mocha][mocha], [Chai][chai],
+   [Sinon.JS][sinon], and [Istanbul][istanbul]
 
 You can optionally set up:
 
@@ -82,5 +82,6 @@ This project is distributed under the MIT license.
 [mocha]: http://visionmedia.github.io/mocha/
 [chai]: http://chaijs.com
 [sinon]: http://sinonjs.org
+[istanbul]: http://gotwarlost.github.io/istanbul/
 [ember]: http://emberjs.com
 [express]: http://expressjs.com
