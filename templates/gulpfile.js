@@ -358,10 +358,18 @@ tasks['.test:app'] = function(options) {
     paths('src.app.tests.fixtures', opts),
     paths('src.app.tests.helpers', opts), app,
     paths('src.app.tests', opts));
+
+  var preprocessors = { 'test/**/*.json': ['html2js'] };
+
+  if (opts.coverage) {
+    preprocessors[path.join(dir, 'application.js')] = ['coverage'];
+  }
+
   return gulp.src(sources)
     .pipe($.karma({
       configFile: 'karma.conf.js',
-      action: (distribution ? 'run' : 'watch')
+      preprocessors: preprocessors,
+      action: (opts.coverage ? 'run' : 'watch')
     }));
 };
 <% if (components.server) { %>
@@ -388,10 +396,33 @@ tasks['.test:server'] = function(options) {
   if (distribution) {
     throw new Error('Tests can not (currently) be run for distribution.');
   }
-  gulp.src(paths('src.server.tests', opts))
+
+  var dependencies = [];
+  var clearSources = function() {
+    return through.obj(function(file, enc, cb) { cb(); });
+  };
+
+  if (opts.coverage) {
+    dependencies.push(gulp.src(paths('src.server.scripts', opts))
+      .pipe($.istanbul())
+      .pipe(clearSources()));
+  }
+
+  // all other dependencies must finish before test files are added
+  dependencies.push(gulp.src(paths('src.server.tests', opts)));
+
+  var stream = new OrderedStreams(dependencies)
     .pipe($.plumber())
     .pipe($.mocha());
-  return null;
+
+  if (opts.coverage) {
+    stream = stream.pipe($.istanbul.writeReports({
+      dir: './coverage/server',
+      reporters: [ 'html', 'json' ]
+    }));
+  }
+
+  return stream;
 };
 <% } %>
 tasks['.clean'] = function(options) {
@@ -478,9 +509,17 @@ gulp.task('.watch:test:server', function() {
 gulp.task('.test:app:dev', ['.build:app:dev', '.watch:test:app'], function() {
   return tasks['.test:app'](environment('development'));
 });
+
+gulp.task('.test:app:dev:coverage', ['.build:app:dev'], function() {
+  return tasks['.test:app'](_.merge(environment('development'), { coverage: true }));
+});
 <% if (components.server) { %>
 gulp.task('.test:server:dev', ['.watch:test:server'], function() {
   return tasks['.test:server'](environment('development'));
+});
+
+gulp.task('.test:server:dev:coverage', function() {
+  return tasks['.test:server'](_.merge(environment('development'), { coverage: true }));
 });
 
 gulp.task('.test:server:dev:re-run', function() {
@@ -524,6 +563,10 @@ gulp.task('serve:dist', ['.clean:dist'], function() {
 
 gulp.task('test', ['.clean:dev'], function() {
   gulp.start('lint', '.test:app:dev'<% if (components.server) { %>, '.test:server:dev'<% } %>);
+});
+
+gulp.task('test:coverage', ['.clean:dev'], function() {
+  gulp.start('lint', '.test:app:dev:coverage'<% if (components.server) { %>, '.test:server:dev:coverage'<% } %>);
 });
 
 gulp.task('test:app', ['.clean:dev'], function() {

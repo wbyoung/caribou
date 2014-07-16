@@ -6,8 +6,11 @@ module.exports = function(config) {
     frameworks: ['mocha', 'chai', 'sinon'],
     files: [], // specified via gulp
     exclude: [],
-    reporters: ['progress'],
-    preprocessors: { '**/*.json': ['html2js'] },
+    reporters: ['progress', 'coverage'],
+    preprocessors: {}, // specified via gulp
+    coverageReporter: {
+      type : 'lcov'
+    },
     port: 8080,
     colors: true,
     logLevel: config.LOG_INFO,
