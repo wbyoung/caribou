@@ -90,6 +90,7 @@ module.exports = yeoman.generators.Base.extend({
       this.copy('server/config/env/development.js');
       this.copy('server/config/env/production.js');
       this.copy('server/config/env/staging.js');
+      this.copy('server/config/env/test.js');
     }
   },
 
