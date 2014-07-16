@@ -410,7 +410,7 @@ tasks['.test:server'] = function(options) {
   if (opts.coverage) {
     stream = stream.pipe($.istanbul.writeReports({
       dir: './coverage/server',
-      reporters: [ 'html', 'json' ]
+      reporters: [ 'lcov' ]
     }));
   }
 
