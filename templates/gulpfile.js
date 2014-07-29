@@ -15,6 +15,15 @@ var SERVER_PORT = process.env.PORT || 9000;
 var LIVERELOAD_PORT = process.env.LIVERELOAD_PORT || 35729;
 var lr = require('tiny-lr')();
 
+var status = {
+  exitCode: 0,
+  errors: [],
+  recordError: function(e) {
+    status.exitCode = 1;
+    status.errors.push(e);
+  }
+};
+
 /*
  * Path reference
  */
@@ -366,11 +375,13 @@ tasks['.test:app'] = function(options) {
   }
 
   return gulp.src(sources)
+    .pipe($.plumber())
     .pipe($.karma({
       configFile: 'karma.conf.js',
       preprocessors: preprocessors,
       action: (opts.coverage ? 'run' : 'watch')
-    }));
+    }))
+    .on('error', status.recordError);
 };
 <% if (components.server) { %>
 tasks['.scripts:server'] = function(options) {
@@ -413,7 +424,8 @@ tasks['.test:server'] = function(options) {
 
   var stream = new OrderedStreams(dependencies)
     .pipe($.plumber())
-    .pipe($.mocha());
+    .pipe($.mocha())
+    .on('error', status.recordError);
 
   if (opts.coverage) {
     stream = stream.pipe($.istanbul.writeReports({
@@ -566,7 +578,9 @@ gulp.task('test', ['.clean:dev'], function() {
 });
 
 gulp.task('test:coverage', ['.clean:dev'], function() {
-  gulp.start('lint', '.test:app:dev:coverage'<% if (components.server) { %>, '.test:server:dev:coverage'<% } %>);
+  gulp.start('lint', '.test:app:dev:coverage'<% if (components.server) { %>, '.test:server:dev:coverage'<% } %>, function() {
+    process.exit(status.exitCode);
+  });
 });
 
 gulp.task('test:app', ['.clean:dev'], function() {
