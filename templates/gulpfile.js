@@ -19,9 +19,17 @@ var status = {
   exitCode: 0,
   errors: [],
   recordError: function(e) {
+    process.stderr.write(colors.red(e) + '\n\x07');
     status.exitCode = 1;
     status.errors.push(e);
+    if (this.emit) {
+      this.emit('end');
+    }
   }
+};
+
+var plumber = function(options) {
+  return $.plumber(_.extend({ errorHandler: status.recordError }, options));
 };
 
 /*
@@ -256,7 +264,7 @@ tasks['.scripts:app'] = function(options) {
       }
     };
     streams.push(gulp.src(paths('src.app.templates', opts))
-      .pipe($.plumber())
+      .pipe(plumber())
       .pipe(emFilter)
       .pipe($.emberEmblem())
       .pipe($.defineModule('plain', moduleOptions))
@@ -270,7 +278,7 @@ tasks['.scripts:app'] = function(options) {
 <% } %>
   if (opts.scripts) {
     streams.push(gulp.src(paths('src.app.scripts.entry', opts), { read: false })
-      .pipe($.plumber())
+      .pipe(plumber())
       .pipe(browserify()));
   }
 
@@ -308,7 +316,7 @@ tasks['.styles:app'] = function(options) {
   }
 
   var stream = gulp.src(src)
-    .pipe($.plumber())
+    .pipe(plumber())
     .pipe($.sass());
 
   if (distribution) {
@@ -375,13 +383,12 @@ tasks['.test:app'] = function(options) {
   }
 
   return gulp.src(sources)
-    .pipe($.plumber())
+    .pipe(plumber())
     .pipe($.karma({
       configFile: 'karma.conf.js',
       preprocessors: preprocessors,
       action: (opts.coverage ? 'run' : 'watch')
-    }))
-    .on('error', status.recordError);
+    }));
 };
 <% if (components.server) { %>
 tasks['.scripts:server'] = function(options) {
@@ -423,9 +430,8 @@ tasks['.test:server'] = function(options) {
   dependencies.push(gulp.src(paths('src.server.tests', opts)));
 
   var stream = new OrderedStreams(dependencies)
-    .pipe($.plumber())
-    .pipe($.mocha())
-    .on('error', status.recordError);
+    .pipe(plumber())
+    .pipe($.mocha());
 
   if (opts.coverage) {
     stream = stream.pipe($.istanbul.writeReports({
