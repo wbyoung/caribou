@@ -148,7 +148,10 @@ server.fork = (function() {
   var run = function(app, env, cb) {
     env = _.extend({}, process.env, env);
     running = cp.fork(__filename, [app], { env: env });
-    running.on('close', function() { if (next) { next(); } });
+    running.on('close', function() {
+      running = undefined;
+      if (next) { next(); }
+    });
     running.on('message', cb || function() {});
     next = undefined;
   };
