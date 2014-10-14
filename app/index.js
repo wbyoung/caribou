@@ -74,6 +74,7 @@ module.exports = yeoman.generators.Base.extend({
     this.template('app/scripts/vendor.json');
     if (this.components.ember) {
       this.copy('app/templates/application.hbs');
+      this.copy('app/templates/index.hbs');
     }
   },
 
@@ -85,7 +86,7 @@ module.exports = yeoman.generators.Base.extend({
 
   server: function() {
     if (this.components.server) {
-      this.copy('server/application.js');
+      this.template('server/application.js');
       this.copy('server/config/index.js');
       this.copy('server/config/env/base.js');
       this.copy('server/config/env/development.js');
