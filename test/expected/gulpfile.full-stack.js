@@ -13,15 +13,14 @@ var _ = require('lodash');
 
 var SERVER_PORT = process.env.PORT || 9000;
 var LIVERELOAD_PORT = process.env.LIVERELOAD_PORT || 35729;
-var lr = require('tiny-lr')();
 
-var status = {
+var program = {
   exitCode: 0,
   errors: [],
   recordError: function(e) {
     process.stderr.write(colors.red(e) + '\n\x07');
-    status.exitCode = 1;
-    status.errors.push(e);
+    program.exitCode = 1;
+    program.errors.push(e);
     if (this.emit) {
       this.emit('end');
     }
@@ -29,7 +28,7 @@ var status = {
 };
 
 var plumber = function(options) {
-  return $.plumber(_.extend({ errorHandler: status.recordError }, options));
+  return $.plumber(_.extend({ errorHandler: program.recordError }, options));
 };
 
 /*
@@ -196,8 +195,6 @@ tasks['.serve'] = function(options) {
     NODE_ENV: distribution ? 'production' : 'development'
   };
   server.fork(serverEntry, serverEnv, open);
-
-  lr.listen(LIVERELOAD_PORT);
 };
 
 tasks['.watch'] = function(options) {
@@ -284,7 +281,7 @@ tasks['.scripts:app'] = function(options) {
 
   stream = stream
     .pipe(gulp.dest(paths('dest.app.scripts', opts)))
-    .pipe($.livereload(LIVERELOAD_PORT, { auto: false, silent: true }));
+    .pipe($.livereload(LIVERELOAD_PORT));
 
   return stream;
 };
@@ -319,7 +316,7 @@ tasks['.styles:app'] = function(options) {
 
   stream = stream
     .pipe(gulp.dest(paths('dest.app.styles', opts)))
-    .pipe($.livereload(lr));
+    .pipe($.livereload(LIVERELOAD_PORT));
 
   return stream;
 };
@@ -343,7 +340,7 @@ tasks['.static:app'] = function(options) {
       .pipe(imageFilter.restore())
       .pipe(gulp.dest(paths('dest.app.static', opts)));
   }
-  return stream.pipe($.livereload(lr));
+  return stream.pipe($.livereload(LIVERELOAD_PORT));
 };
 
 tasks['.test:app'] = function(options) {
@@ -577,7 +574,7 @@ gulp.task('test', ['.clean:dev'], function() {
 
 gulp.task('test:coverage', ['.clean:dev'], function() {
   gulp.start('lint', '.test:app:dev:coverage', '.test:server:dev:coverage', function() {
-    process.exit(status.exitCode);
+    process.exit(program.exitCode);
   });
 });
 
