@@ -13,6 +13,7 @@ var _ = require('lodash');
 
 var SERVER_PORT = process.env.PORT || 9000;
 var LIVERELOAD_PORT = process.env.LIVERELOAD_PORT || 35729;
+var lr = require('tiny-lr')();
 
 var program = {
   exitCode: 0,
@@ -198,6 +199,8 @@ tasks['.serve'] = function(options) {
     NODE_ENV: distribution ? 'production' : 'development'
   };
   server.fork(serverEntry, serverEnv, open);
+
+  lr.listen(LIVERELOAD_PORT);
 };
 
 tasks['.watch'] = function(options) {
@@ -284,7 +287,7 @@ tasks['.scripts:app'] = function(options) {
 
   stream = stream
     .pipe(gulp.dest(paths('dest.app.scripts', opts)))
-    .pipe($.livereload(LIVERELOAD_PORT));
+    .pipe($.livereload(lr, { auto: false, silent: true }));
 
   return stream;
 };
@@ -319,7 +322,7 @@ tasks['.styles:app'] = function(options) {
 
   stream = stream
     .pipe(gulp.dest(paths('dest.app.styles', opts)))
-    .pipe($.livereload(LIVERELOAD_PORT));
+    .pipe($.livereload(lr, { auto: false, silent: false }));
 
   return stream;
 };
@@ -343,7 +346,7 @@ tasks['.static:app'] = function(options) {
       .pipe(imageFilter.restore())
       .pipe(gulp.dest(paths('dest.app.static', opts)));
   }
-  return stream.pipe($.livereload(LIVERELOAD_PORT));
+  return stream.pipe($.livereload(lr, { auto: false, silent: false }));
 };
 
 tasks['.test:app'] = function(options) {
