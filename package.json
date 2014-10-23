@@ -1,6 +1,6 @@
 {
   "name": "generator-caribou",
-  "version": "0.2.14",
+  "version": "0.2.15",
   "description": "Generator for front end apps using Gulp, Karma, Mocha & Other Goodies",
   "homepage": "https://github.com/wbyoung/caribou",
   "main": "index.js",
