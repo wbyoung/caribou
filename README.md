@@ -79,7 +79,7 @@ This project is distributed under the MIT license.
 [jquery]: http://jquery.com
 [bootstrap]: http://getbootstrap.com
 [karma]: http://karma-runner.github.io/
-[mocha]: http://visionmedia.github.io/mocha/
+[mocha]: http://mochajs.org/
 [chai]: http://chaijs.com
 [sinon]: http://sinonjs.org
 [istanbul]: http://gotwarlost.github.io/istanbul/
